@@ -6,7 +6,6 @@ import com.petarvelikov.taxikooperant.model.StatusModel;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
 import com.petarvelikov.taxikooperant.model.interfaces.StatusUpdateObservable;
-import com.petarvelikov.taxikooperant.model.interfaces.TcpClientController;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

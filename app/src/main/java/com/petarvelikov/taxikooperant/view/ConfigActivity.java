@@ -16,12 +16,12 @@ import android.widget.Toast;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
+import com.petarvelikov.taxikooperant.constants.Constants;
 
 import javax.inject.Inject;
 
 public class ConfigActivity extends AppCompatActivity {
 
-    private static final String USER_ID = "user_id";
     private static final int LOCATION_PERMISSIONS_CODE = 10001;
 
     @Inject
@@ -42,7 +42,7 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
         requestPermissions();
-        if (sharedPreferences.contains(USER_ID)) {
+        if (sharedPreferences.contains(Constants.USER_ID)) {
             goToMainActivity();
         }
     }

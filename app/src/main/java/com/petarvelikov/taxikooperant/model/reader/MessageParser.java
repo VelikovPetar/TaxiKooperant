@@ -94,13 +94,12 @@ public class MessageParser {
     }
 
     private boolean confirmVehicleId(byte[] message) {
-//        if (message.length < 7) {
-//            return false;
-//        }
-//        byte[] deviceIdBytes = Arrays.copyOfRange(message, 2, 7);
-//        String deviceId = sharedPreferences.getString(Constants.USER_ID, null);
-//        return deviceId != null && deviceId.equals(bytesToString(deviceIdBytes));
-        return true;
+        if (message.length < 7) {
+            return false;
+        }
+        byte[] deviceIdBytes = Arrays.copyOfRange(message, 2, 7);
+        String deviceId = sharedPreferences.getString(Constants.USER_ID, null);
+        return deviceId != null && deviceId.equals(bytesToString(deviceIdBytes));
     }
 
     private String bytesToString(byte[] bytes) {
