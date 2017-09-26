@@ -7,7 +7,8 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.petarvelikov.taxikooperant.model.StatusModel;
+import com.petarvelikov.taxikooperant.model.interfaces.LocationStatusObservable;
+import com.petarvelikov.taxikooperant.model.status.StatusModel;
 
 import java.util.List;
 
@@ -19,19 +20,19 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 @Singleton
-public class LocationUpdater implements LocationListener {
+public class LocationUpdater implements LocationListener, LocationStatusObservable {
 
     private LocationManager locationManager;
     private Location lastLocation;
     private BehaviorSubject<Location> locationSubject;
-    private PublishSubject<Integer> statusSubject;
+    private BehaviorSubject<Integer> statusSubject;
     private boolean gpsAvailable = false, networkAvailable = false;
 
     @Inject
     public LocationUpdater(LocationManager locationManager) {
         this.locationManager = locationManager;
         locationSubject = BehaviorSubject.create();
-        statusSubject = PublishSubject.create();
+        statusSubject = BehaviorSubject.createDefault(StatusModel.NO_LOCATION_SERVICE);
     }
 
     @Override
@@ -150,6 +151,7 @@ public class LocationUpdater implements LocationListener {
         return locationSubject;
     }
 
+    @Override
     public Observable<Integer> getLocationStatusObservable() {
         return statusSubject;
     }

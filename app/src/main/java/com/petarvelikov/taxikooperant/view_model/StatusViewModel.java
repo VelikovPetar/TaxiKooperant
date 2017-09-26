@@ -1,12 +1,18 @@
 package com.petarvelikov.taxikooperant.view_model;
 
-import com.petarvelikov.taxikooperant.model.interfaces.StatusUpdateObservable;
+import com.petarvelikov.taxikooperant.model.status.StatusModel;
+
+import io.reactivex.Observable;
 
 public class StatusViewModel {
 
-    private StatusUpdateObservable statusUpdateObservable;
+    private ObservableStatusModel observableStatusModel;
 
-    public StatusViewModel(StatusUpdateObservable statusUpdateObservable) {
-        this.statusUpdateObservable = statusUpdateObservable;
+    public StatusViewModel(ObservableStatusModel observableStatusModel) {
+        this.observableStatusModel = observableStatusModel;
+    }
+
+    public interface ObservableStatusModel {
+        Observable<StatusModel> getObservableStatusModel();
     }
 }

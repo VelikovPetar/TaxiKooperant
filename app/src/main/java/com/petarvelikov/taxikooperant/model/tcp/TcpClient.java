@@ -2,10 +2,10 @@ package com.petarvelikov.taxikooperant.model.tcp;
 
 import android.util.Log;
 
-import com.petarvelikov.taxikooperant.model.StatusModel;
+import com.petarvelikov.taxikooperant.model.interfaces.NetworkStatusObservable;
+import com.petarvelikov.taxikooperant.model.status.StatusModel;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
-import com.petarvelikov.taxikooperant.model.interfaces.StatusUpdateObservable;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import io.reactivex.subjects.PublishSubject;
 public class TcpClient implements
         Runnable,
         MessageObservable,
-        StatusUpdateObservable,
+        NetworkStatusObservable,
         MessageWriter {
 
     private static final String SERVER_IP = "some_ip";
@@ -47,7 +47,7 @@ public class TcpClient implements
             StatusModel.NO_LOCATION_SERVICE,
             StatusModel.NOT_CONNECTED
     );
-    private BehaviorSubject<StatusModel> statusSubject;
+    private BehaviorSubject<Integer> statusSubject;
     private PublishSubject<byte[]> dataSubject;
 
     @Inject
@@ -56,7 +56,7 @@ public class TcpClient implements
         isWaitingData = false;
         shouldAutomaticallyReconnect = true;
         serverReconnectAttempts = 0;
-        statusSubject = BehaviorSubject.createDefault(statusModel);
+        statusSubject = BehaviorSubject.createDefault(StatusModel.NOT_CONNECTED);
         dataSubject = PublishSubject.create();
     }
 
@@ -132,7 +132,7 @@ public class TcpClient implements
     }
 
     @Override
-    public Observable<StatusModel> getStatusUpdatesObservable() {
+    public Observable<Integer> getNetworkStatusObservable() {
         return statusSubject;
     }
 

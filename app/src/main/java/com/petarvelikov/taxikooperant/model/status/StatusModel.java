@@ -1,4 +1,4 @@
-package com.petarvelikov.taxikooperant.model;
+package com.petarvelikov.taxikooperant.model.status;
 
 public class StatusModel {
 

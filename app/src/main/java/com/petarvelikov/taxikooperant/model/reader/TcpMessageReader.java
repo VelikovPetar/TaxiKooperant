@@ -6,27 +6,37 @@ import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.messages.AbstractMessage;
 import com.petarvelikov.taxikooperant.model.messages.ErrorMessage;
 import com.petarvelikov.taxikooperant.model.messages.RingBellMessage;
+import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.subjects.PublishSubject;
 
 @Singleton
-public class TcpMessageReader {
+public class TcpMessageReader implements MessageViewModel.ObservableMessageModel {
 
     private MessageObservable messageObservable;
     private MessageParser parser;
     private Disposable disposable;
+    private PublishSubject<AbstractMessage> messageSubject;
 
     @Inject
     public TcpMessageReader(MessageObservable messageObservable, MessageParser parser) {
         this.messageObservable = messageObservable;
         this.parser = parser;
+        this.messageSubject = PublishSubject.create();
+    }
+
+    @Override
+    public Observable<AbstractMessage> getObservableModel() {
+        return messageSubject;
     }
 
     public void startListeningForMessages() {
@@ -56,6 +66,7 @@ public class TcpMessageReader {
                         } else {
                             Log.d("Reader", "Error");
                         }
+                        messageSubject.onNext(abstractMessage);
                     }
 
                     @Override

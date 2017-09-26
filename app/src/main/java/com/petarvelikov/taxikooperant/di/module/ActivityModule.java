@@ -1,8 +1,6 @@
 package com.petarvelikov.taxikooperant.di.module;
 
 import com.petarvelikov.taxikooperant.di.scope.ActivityScope;
-import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
-import com.petarvelikov.taxikooperant.model.interfaces.StatusUpdateObservable;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
 
@@ -14,13 +12,13 @@ public class ActivityModule {
 
     @Provides
     @ActivityScope
-    public MessageViewModel provideMessageViewModel(MessageObservable messageObservable) {
-        return new MessageViewModel(messageObservable);
+    public MessageViewModel provideMessageViewModel(MessageViewModel.ObservableMessageModel observable) {
+        return new MessageViewModel(observable);
     }
 
     @Provides
     @ActivityScope
-    public StatusViewModel provideStatusViewModel(StatusUpdateObservable statusUpdateObservable) {
-        return new StatusViewModel(statusUpdateObservable);
+    public StatusViewModel provideStatusViewModel(StatusViewModel.ObservableStatusModel observable) {
+        return new StatusViewModel(observable);
     }
 }
