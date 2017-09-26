@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
 import com.petarvelikov.taxikooperant.constants.Constants;
+import com.petarvelikov.taxikooperant.di.component.DaggerActivityComponent;
+import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
 
 import javax.inject.Inject;
 
@@ -26,6 +28,8 @@ public class ConfigActivity extends AppCompatActivity {
 
     @Inject
     SharedPreferences sharedPreferences;
+    @Inject
+    StatusViewModel statusViewModel;
     Button button;
 
     @Override
@@ -33,7 +37,11 @@ public class ConfigActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
         App app = (App) getApplication();
-        app.component().inject(this);
+        DaggerActivityComponent.builder()
+                .appComponent(app.component())
+                .build()
+                .inject(this);
+        statusViewModel.toString();
         button = (Button) findViewById(R.id.btnMain);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +87,7 @@ public class ConfigActivity extends AppCompatActivity {
                 fineGranted != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION},
+                            Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSIONS_CODE);
         }
     }

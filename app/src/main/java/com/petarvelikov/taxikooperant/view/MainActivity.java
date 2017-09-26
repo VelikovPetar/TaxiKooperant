@@ -12,6 +12,7 @@ import android.widget.Button;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
+import com.petarvelikov.taxikooperant.di.component.DaggerActivityComponent;
 import com.petarvelikov.taxikooperant.model.tcp.TcpService;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         App app = (App) getApplication();
-        app.component().inject(this);
+        DaggerActivityComponent.builder()
+                .appComponent(app.component())
+                .build()
+                .inject(this);
         bindUi();
     }
 

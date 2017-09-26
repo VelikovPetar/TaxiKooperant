@@ -51,18 +51,16 @@ public class TcpMessageWriter {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
                         locationDisposable = d;
-                        Log.d("Location", "Subscribed");
                     }
 
                     @Override
                     public void onNext(@NonNull Location location) {
-                        Log.d("Location", location.toString());
                         TcpMessageWriter.this.location = location;
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Location", "Error");
+
                     }
 
                     @Override
@@ -79,18 +77,16 @@ public class TcpMessageWriter {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
                         intervalDisposable = d;
-                        Log.d("Interval", "Subscribed");
                     }
 
                     @Override
                     public void onNext(@NonNull Long aLong) {
-                        Log.d("Interval", aLong + "");
                         writeLocationUpdate();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Interval", "Error");
+
                     }
 
                     @Override
@@ -103,7 +99,7 @@ public class TcpMessageWriter {
     private void writeLocationUpdate() {
         if (location != null) {
             byte[] message = messagesGenerator.commonMessage(location);
-            String msg ="";
+            String msg = "";
             for (byte b : message) msg += (char) b;
             Log.d("Messages", msg);
 //            messageWriter.writeMessage(message);
