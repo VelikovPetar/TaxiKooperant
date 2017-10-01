@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Такси кооперант</string>
+    <string name="app_in_background">Апликацијата работи во позадина</string>
 </resources>

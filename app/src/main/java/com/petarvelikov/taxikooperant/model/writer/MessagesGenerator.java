@@ -1,4 +1,4 @@
-package com.petarvelikov.taxikooperant.model.messages;
+package com.petarvelikov.taxikooperant.model.writer;
 
 import android.content.SharedPreferences;
 import android.location.Location;

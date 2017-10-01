@@ -2,7 +2,7 @@ package com.petarvelikov.taxikooperant.model.tcp;
 
 import android.util.Log;
 
-import com.petarvelikov.taxikooperant.model.interfaces.NetworkStatusObservable;
+import com.petarvelikov.taxikooperant.model.interfaces.ConnectionStatusObservable;
 import com.petarvelikov.taxikooperant.model.status.StatusModel;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
@@ -25,7 +25,7 @@ import io.reactivex.subjects.PublishSubject;
 public class TcpClient implements
         Runnable,
         MessageObservable,
-        NetworkStatusObservable,
+        ConnectionStatusObservable,
         MessageWriter {
 
     private static final String SERVER_IP = "some_ip";
@@ -47,7 +47,8 @@ public class TcpClient implements
             StatusModel.NO_LOCATION_SERVICE,
             StatusModel.NOT_CONNECTED
     );
-    private BehaviorSubject<Integer> statusSubject;
+    private BehaviorSubject<Integer> networkStatusSubject;
+    private BehaviorSubject<Integer> serverStatusSubject;
     private PublishSubject<byte[]> dataSubject;
 
     @Inject
@@ -56,7 +57,8 @@ public class TcpClient implements
         isWaitingData = false;
         shouldAutomaticallyReconnect = true;
         serverReconnectAttempts = 0;
-        statusSubject = BehaviorSubject.createDefault(StatusModel.NOT_CONNECTED);
+        networkStatusSubject = BehaviorSubject.createDefault(StatusModel.NOT_CONNECTED);
+        serverStatusSubject = BehaviorSubject.createDefault(StatusModel.NOT_CONNECTED);
         dataSubject = PublishSubject.create();
     }
 
@@ -64,13 +66,13 @@ public class TcpClient implements
     public void run() {
         shouldAutomaticallyReconnect = true;
         while (shouldAutomaticallyReconnect) {
-            // TODO Update network state(CONNECTING)
             // Wait for internet connection
             int attempts = 0;
             while (!networkMonitor.hasInternetConnection()) {
+                networkStatusSubject.onNext(StatusModel.CONNECTING);
                 waitMillis(1000);
                 if (attempts++ == 10) {
-                    // TODO Update network state(NOT_CONNECTED)
+                    networkStatusSubject.onNext(StatusModel.NOT_CONNECTED);
                     waitMillis(5000);
                     attempts = 0;
                 }
@@ -79,14 +81,14 @@ public class TcpClient implements
                 }
             }
             // Has internet connection
-            // TODO Update network state(CONNECTED)
+            networkStatusSubject.onNext(StatusModel.CONNECTED);
             isWaitingData = true;
 
             // Connecting to server
-            // TODO Update server state(CONNECTING)
+            serverStatusSubject.onNext(StatusModel.CONNECTING);
             if (serverReconnectAttempts == 3) {
                 serverReconnectAttempts = 0;
-                // TODO Update server status(NOT_CONNECTED)
+                serverStatusSubject.onNext(StatusModel.NOT_CONNECTED);
                 waitMillis(60000);
             } else if (serverReconnectAttempts > 0 && serverReconnectAttempts < 3) {
                 waitMillis(3000);
@@ -103,7 +105,7 @@ public class TcpClient implements
                     readData();
                 }
             } catch (SocketTimeoutException e) {
-                // TODO Update server status (CONNECTING)
+                serverStatusSubject.onNext(StatusModel.CONNECTING);
                 e.printStackTrace();
                 serverReconnectAttempts++;
             } catch (IOException e) {
@@ -127,13 +129,17 @@ public class TcpClient implements
 
     @Override
     public Observable<byte[]> getMessageObservable() {
-        Log.d("Injection", "Successful");
         return dataSubject;
     }
 
     @Override
     public Observable<Integer> getNetworkStatusObservable() {
-        return statusSubject;
+        return networkStatusSubject;
+    }
+
+    @Override
+    public Observable<Integer> getServerStatusObservable() {
+        return serverStatusSubject;
     }
 
     private void readData() throws IOException {
@@ -157,6 +163,7 @@ public class TcpClient implements
     private void setupSocket() throws IOException {
         socket = new Socket(SERVER_IP, SERVER_PORT);
         socket.setSoTimeout(TIMEOUT);
+        serverStatusSubject.onNext(StatusModel.CONNECTED);
         inputStream = socket.getInputStream();
         outputStream = new DataOutputStream(socket.getOutputStream());
     }

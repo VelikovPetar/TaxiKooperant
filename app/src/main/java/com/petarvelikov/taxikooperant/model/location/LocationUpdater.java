@@ -7,6 +7,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.petarvelikov.taxikooperant.model.interfaces.LocationObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.LocationStatusObservable;
 import com.petarvelikov.taxikooperant.model.status.StatusModel;
 
@@ -20,7 +21,8 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 @Singleton
-public class LocationUpdater implements LocationListener, LocationStatusObservable {
+public class LocationUpdater implements LocationListener,
+        LocationStatusObservable, LocationObservable {
 
     private LocationManager locationManager;
     private Location lastLocation;
@@ -41,6 +43,7 @@ public class LocationUpdater implements LocationListener, LocationStatusObservab
             Log.d("Location", "Changed");
             lastLocation = location;
             locationSubject.onNext(lastLocation);
+            statusSubject.onNext(StatusModel.GPS);
         }
     }
 
@@ -147,6 +150,7 @@ public class LocationUpdater implements LocationListener, LocationStatusObservab
         return bestLocation;
     }
 
+    @Override
     public Observable<Location> getLocationObservable() {
         return locationSubject;
     }

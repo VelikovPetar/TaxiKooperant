@@ -18,8 +18,6 @@ import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
 import com.petarvelikov.taxikooperant.constants.Constants;
 import com.petarvelikov.taxikooperant.di.component.DaggerActivityComponent;
-import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
-import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
 
 import javax.inject.Inject;
 
@@ -89,5 +87,4 @@ public class ConfigActivity extends AppCompatActivity {
                     LOCATION_PERMISSIONS_CODE);
         }
     }
-
 }

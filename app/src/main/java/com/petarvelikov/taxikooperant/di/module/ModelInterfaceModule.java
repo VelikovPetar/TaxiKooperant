@@ -1,9 +1,9 @@
 package com.petarvelikov.taxikooperant.di.module;
 
+import com.petarvelikov.taxikooperant.model.interfaces.ConnectionStatusObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.LocationStatusObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
-import com.petarvelikov.taxikooperant.model.interfaces.NetworkStatusObservable;
 import com.petarvelikov.taxikooperant.model.location.LocationUpdater;
 import com.petarvelikov.taxikooperant.model.tcp.TcpClient;
 
@@ -14,7 +14,7 @@ import dagger.Module;
 public abstract class ModelInterfaceModule {
 
     @Binds
-    public abstract NetworkStatusObservable provideNetworkStatusObservable(TcpClient tcpClient);
+    public abstract ConnectionStatusObservable provideConnectionStatusObservable(TcpClient tcpClient);
 
     @Binds
     public abstract MessageObservable provideMessageObservable(TcpClient tcpClient);

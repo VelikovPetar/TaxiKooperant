@@ -32,6 +32,7 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
         this.messageObservable = messageObservable;
         this.parser = parser;
         this.messageSubject = PublishSubject.create();
+        Log.d("Injection", "A reader is created");
     }
 
     @Override
@@ -85,5 +86,10 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+    }
+
+    @Override
+    public void dispose() {
+        stopListeningForMessages();
     }
 }

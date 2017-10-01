@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
 import com.petarvelikov.taxikooperant.model.location.LocationUpdater;
-import com.petarvelikov.taxikooperant.model.messages.MessagesGenerator;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

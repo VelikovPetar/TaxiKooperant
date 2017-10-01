@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import com.petarvelikov.taxikooperant.di.module.AppModule;
 import com.petarvelikov.taxikooperant.di.module.ModelInterfaceModule;
 import com.petarvelikov.taxikooperant.di.module.SystemComponentsModule;
-import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
-import com.petarvelikov.taxikooperant.model.interfaces.NetworkStatusObservable;
 import com.petarvelikov.taxikooperant.model.reader.TcpMessageReader;
 import com.petarvelikov.taxikooperant.model.status.StatusUpdater;
 import com.petarvelikov.taxikooperant.model.tcp.TcpService;

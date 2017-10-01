@@ -1,9 +1,8 @@
 package com.petarvelikov.taxikooperant.model.interfaces;
 
-import com.petarvelikov.taxikooperant.model.status.StatusModel;
-
 import io.reactivex.Observable;
 
-public interface NetworkStatusObservable {
+public interface ConnectionStatusObservable {
+    Observable<Integer> getServerStatusObservable();
     Observable<Integer> getNetworkStatusObservable();
 }

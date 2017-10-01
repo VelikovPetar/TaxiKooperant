@@ -55,4 +55,12 @@ public class StatusModel {
     public void setServerStatus(int serverStatus) {
         this.serverStatus = serverStatus;
     }
+
+    @Override
+    public String toString() {
+        String net = networkStatus == NOT_CONNECTED ? "Not connected" : networkStatus == CONNECTING ? "Connecting" : "Connected";
+        String server = serverStatus == NOT_CONNECTED ? "Not connected" : serverStatus == CONNECTING ? "Connecting" : "Connected";
+        String loc = locationServiceStatus == NO_LOCATION_SERVICE ? "No service" : locationServiceStatus == NETWORK ? "Network" : "GPS";
+        return String.format("Network: %s\nServer: %s\nLocation: %s\n", net, server, loc);
+    }
 }
