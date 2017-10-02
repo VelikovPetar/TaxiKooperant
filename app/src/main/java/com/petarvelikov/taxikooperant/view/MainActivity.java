@@ -115,17 +115,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
-                intent.setAction(Constants.ACTION.START_SERVICE);
+                intent.setAction(Constants.ACTION.START_RINGING);
                 startService(intent);
                 isServiceStarted = true;
             }
         });
-        Button stopButton = (Button) findViewById(R.id.btnStop);
+        Button stopButton = (Button) findViewById(R.id.btnStopRinging);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
-                intent.setAction(Constants.ACTION.STOP_SERVICE);
+                intent.setAction(Constants.ACTION.STOP_RINGING);
                 startService(intent);
                 isServiceStarted = false;
             }
