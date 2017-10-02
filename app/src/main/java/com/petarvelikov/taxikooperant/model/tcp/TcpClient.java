@@ -41,12 +41,6 @@ public class TcpClient implements
     private volatile boolean shouldAutomaticallyReconnect;
     private int serverReconnectAttempts;
 
-    private final StatusModel statusModel = new StatusModel(
-            StatusModel.NO_LOGGED_DRIVER,
-            StatusModel.NOT_CONNECTED,
-            StatusModel.NO_LOCATION_SERVICE,
-            StatusModel.NOT_CONNECTED
-    );
     private BehaviorSubject<Integer> networkStatusSubject;
     private BehaviorSubject<Integer> serverStatusSubject;
     private PublishSubject<byte[]> dataSubject;
@@ -68,10 +62,11 @@ public class TcpClient implements
         while (shouldAutomaticallyReconnect) {
             // Wait for internet connection
             int attempts = 0;
-            while (!networkMonitor.hasInternetConnection()) {
+            while (!networkMonitor.hasInternetConnection() && shouldAutomaticallyReconnect) {
                 networkStatusSubject.onNext(StatusModel.CONNECTING);
+                Log.d("TCP", "Connecting...");
                 waitMillis(1000);
-                if (attempts++ == 10) {
+                if (attempts++ == 10 && shouldAutomaticallyReconnect) {
                     networkStatusSubject.onNext(StatusModel.NOT_CONNECTED);
                     waitMillis(5000);
                     attempts = 0;
@@ -86,11 +81,11 @@ public class TcpClient implements
 
             // Connecting to server
             serverStatusSubject.onNext(StatusModel.CONNECTING);
-            if (serverReconnectAttempts == 3) {
+            if (serverReconnectAttempts == 3 && shouldAutomaticallyReconnect) {
                 serverReconnectAttempts = 0;
                 serverStatusSubject.onNext(StatusModel.NOT_CONNECTED);
                 waitMillis(60000);
-            } else if (serverReconnectAttempts > 0 && serverReconnectAttempts < 3) {
+            } else if (serverReconnectAttempts > 0 && serverReconnectAttempts < 3 && shouldAutomaticallyReconnect) {
                 waitMillis(3000);
             }
             if (!shouldAutomaticallyReconnect) {
@@ -173,6 +168,7 @@ public class TcpClient implements
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Log.d("TCP", "Interrupted exception");
         }
     }
 
@@ -210,10 +206,8 @@ public class TcpClient implements
     }
 
     public void stop() {
-        if (isWaitingData) {
-            isWaitingData = false;
-            shouldAutomaticallyReconnect = false;
-        }
+        isWaitingData = false;
+        shouldAutomaticallyReconnect = false;
         closeSocket();
         closeInputStream();
         closeOutputStream();
