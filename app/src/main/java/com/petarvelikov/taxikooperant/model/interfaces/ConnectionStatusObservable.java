@@ -4,5 +4,6 @@ import io.reactivex.Observable;
 
 public interface ConnectionStatusObservable {
     Observable<Integer> getServerStatusObservable();
+
     Observable<Integer> getNetworkStatusObservable();
 }

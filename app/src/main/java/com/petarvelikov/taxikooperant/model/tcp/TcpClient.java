@@ -3,9 +3,9 @@ package com.petarvelikov.taxikooperant.model.tcp;
 import android.util.Log;
 
 import com.petarvelikov.taxikooperant.model.interfaces.ConnectionStatusObservable;
-import com.petarvelikov.taxikooperant.model.status.StatusModel;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
+import com.petarvelikov.taxikooperant.model.status.StatusModel;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

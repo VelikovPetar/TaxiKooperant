@@ -1,6 +1,5 @@
 package com.petarvelikov.taxikooperant.model.reader;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.petarvelikov.taxikooperant.constants.Constants;

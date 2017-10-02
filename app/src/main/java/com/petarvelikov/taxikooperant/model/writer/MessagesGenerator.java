@@ -95,7 +95,7 @@ public class MessagesGenerator {
         message[36] = (byte) (bits >> 24);
         // Number of satellites
         int satellites;
-        if(location.getExtras() == null) {
+        if (location.getExtras() == null) {
             satellites = 0;
         } else {
             satellites = location.getExtras().getInt("satellites");
@@ -169,26 +169,26 @@ public class MessagesGenerator {
 
     private static byte[] addChkSum(byte[] message) {
         byte[] retVal = new byte[message.length + 2];
-        for(int i = 0; i < message.length; ++i) {
+        for (int i = 0; i < message.length; ++i) {
             retVal[i] = message[i];
         }
-        byte tmpByte = (byte)0;
-        for(byte item : message) {
-            tmpByte = (byte)(tmpByte ^ item);
+        byte tmpByte = (byte) 0;
+        for (byte item : message) {
+            tmpByte = (byte) (tmpByte ^ item);
         }
-        retVal[retVal.length - 1] = (byte)((tmpByte & 0x0f) | 0x30);
-        retVal[retVal.length - 2] = (byte)(((tmpByte & 0xf0) >> 4) | 0x30);
+        retVal[retVal.length - 1] = (byte) ((tmpByte & 0x0f) | 0x30);
+        retVal[retVal.length - 2] = (byte) (((tmpByte & 0xf0) >> 4) | 0x30);
         return retVal;
     }
 
     private static String padLeft(String text, int length, char paddingChar) {
-        if(text == null)
+        if (text == null)
             text = "";
-        if(text.length() > length) {
+        if (text.length() > length) {
             return text.substring(0, length);
         }
         String ret = text;
-        while(ret.length() < length)
+        while (ret.length() < length)
             ret = paddingChar + ret;
         return ret;
     }

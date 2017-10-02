@@ -53,6 +53,7 @@ public class MessageViewModel {
 
     public interface ObservableMessageModel {
         Observable<AbstractMessage> getObservableModel();
+
         void dispose();
     }
 }

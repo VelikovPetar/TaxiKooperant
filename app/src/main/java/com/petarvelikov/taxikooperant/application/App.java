@@ -1,6 +1,7 @@
 package com.petarvelikov.taxikooperant.application;
 
 import android.app.Application;
+
 import com.petarvelikov.taxikooperant.di.component.AppComponent;
 import com.petarvelikov.taxikooperant.di.component.DaggerAppComponent;
 import com.petarvelikov.taxikooperant.di.module.AppModule;

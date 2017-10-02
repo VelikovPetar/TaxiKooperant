@@ -18,7 +18,6 @@ import javax.inject.Singleton;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 
 @Singleton
 public class LocationUpdater implements LocationListener,

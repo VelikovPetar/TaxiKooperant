@@ -57,6 +57,7 @@ public class StatusViewModel {
 
     public interface ObservableStatusModel {
         Observable<StatusModel> getObservableStatusModel();
+
         void dispose();
     }
 }

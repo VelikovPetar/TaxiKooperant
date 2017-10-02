@@ -1,10 +1,7 @@
 package com.petarvelikov.taxikooperant.view;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,22 +26,6 @@ import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TcpService tcpService;
-    private ServiceConnection tcpServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            TcpService.TcpServiceBinder binder = (TcpService.TcpServiceBinder) service;
-            tcpService = binder.getTcpService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    };
-
-    private boolean isServiceStarted;
-
     @Inject
     MessageViewModel messageViewModel;
     @Inject
@@ -54,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private TextView textViewConnection, textViewServer, textViewLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
                 .inject(this);
         bindUi();
         if (getIntent().hasExtra(Constants.SHOULD_STOP_FOREGROUND)) {
-            isServiceStarted = true;
             goBackground();
         }
     }
@@ -74,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (intent.hasExtra(Constants.SHOULD_STOP_FOREGROUND)) {
-            isServiceStarted = true;
             goBackground();
         }
     }
@@ -117,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
                 intent.setAction(Constants.ACTION.START_RINGING);
                 startService(intent);
-                isServiceStarted = true;
             }
         });
         Button stopButton = (Button) findViewById(R.id.btnStopRinging);
@@ -127,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
                 intent.setAction(Constants.ACTION.STOP_RINGING);
                 startService(intent);
-                isServiceStarted = false;
             }
         });
         textViewConnection = (TextView) findViewById(R.id.txtConnectionStatus);
