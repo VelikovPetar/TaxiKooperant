@@ -22,6 +22,8 @@ import javax.inject.Inject;
 
 public class TcpService extends Service {
 
+    private static final int NOTIFICATION_ID = 1001;
+
     @Inject
     TcpClient tcpClient;
     @Inject
@@ -55,23 +57,18 @@ public class TcpService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         switch (intent.getAction()) {
             case Constants.ACTION.START_FOREGROUND:
-                Intent notificationIntent = new Intent(this, MainActivity.class);
-                notificationIntent.putExtra(Constants.SHOULD_STOP_FOREGROUND, true);
-                notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                Notification notification = new NotificationCompat.Builder(this)
-                        .setContentTitle(getResources().getString(R.string.app_name))
-                        .setContentText(getResources().getString(R.string.app_in_background))
-                        .setContentIntent(pendingIntent)
-                        .setOngoing(true)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .build();
+                Notification notification = buildNotification();
                 startForeground(1001, notification);
                 break;
 
             case Constants.ACTION.STOP_FOREGROUND:
                 stopForeground(true);
+                break;
+            case Constants.ACTION.STOP_SERVICE:
+                stopForeground(true);
+                stopWork();
+                stopSelf();
+                break;
         }
         return START_STICKY;
     }
@@ -90,6 +87,27 @@ public class TcpService extends Service {
             tcpClient.stop();
             tcpClient = null;
         }
+
+    }
+
+    private Notification buildNotification() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(Constants.SHOULD_STOP_FOREGROUND, true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent exitIntent = new Intent(this, TcpService.class);
+        exitIntent.setAction(Constants.ACTION.STOP_SERVICE);
+        PendingIntent exitPendingIntent = PendingIntent.getService(this, 0, exitIntent, 0);
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.app_in_background))
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .addAction(R.drawable.ic_power_settings_new_black_24dp, "Exit", exitPendingIntent)
+                .build();
+        return notification;
     }
 
     public class TcpServiceBinder extends Binder {

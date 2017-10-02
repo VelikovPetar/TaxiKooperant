@@ -1,7 +1,6 @@
 package com.petarvelikov.taxikooperant.view;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -53,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private Disposable messagesDisposable;
     private Disposable statusDisposable;
 
-    private TextView tv;
 
+    private TextView textViewConnection, textViewServer, textViewLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 .build()
                 .inject(this);
         bindUi();
-        Log.d("Main", "On create");
         if (getIntent().hasExtra(Constants.SHOULD_STOP_FOREGROUND)) {
             isServiceStarted = true;
             goBackground();
@@ -128,11 +126,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
                 intent.setAction(Constants.ACTION.STOP_SERVICE);
-                stopService(intent);
+                startService(intent);
                 isServiceStarted = false;
             }
         });
-        tv = (TextView) findViewById(R.id.txtTest);
+        textViewConnection = (TextView) findViewById(R.id.txtConnectionStatus);
+        textViewServer = (TextView) findViewById(R.id.txtServerStatus);
+        textViewLocation = (TextView) findViewById(R.id.txtLocationStatus);
     }
 
     private void subscribeForStatusUpdates() {
@@ -146,9 +146,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(@NonNull StatusModel statusModel) {
-                        tv.setText(statusModel.toString());
+                    public void onNext(@NonNull StatusModel status) {
                         Log.d("Main", "Rx Next");
+                        updateStatus(status);
                     }
 
                     @Override
@@ -170,6 +170,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateStatus(StatusModel status) {
+        switch (status.getNetworkStatus()) {
+            case StatusModel.NOT_CONNECTED:
+                textViewConnection.setText(R.string.status_no_connection);
+                break;
+            case StatusModel.CONNECTING:
+                textViewConnection.setText(R.string.status_connecting);
+                break;
+            case StatusModel.CONNECTED:
+                textViewConnection.setText(R.string.status_connected);
+                break;
+        }
+        switch (status.getServerStatus()) {
+            case StatusModel.NOT_CONNECTED:
+                textViewServer.setText(R.string.status_no_connection);
+                break;
+            case StatusModel.CONNECTING:
+                textViewServer.setText(R.string.status_connecting);
+                break;
+            case StatusModel.CONNECTED:
+                textViewServer.setText(R.string.status_connected);
+                break;
+        }
+        switch (status.getLocationServiceStatus()) {
+            case StatusModel.NO_LOCATION_SERVICE:
+                textViewLocation.setText(R.string.no_location);
+                break;
+            case StatusModel.NETWORK:
+                textViewLocation.setText(R.string.network);
+                break;
+            case StatusModel.GPS:
+                textViewLocation.setText(R.string.gps);
+                break;
+        }
+    }
+
     private void subscribeForMessageUpdates() {
         // TODO
     }
@@ -179,21 +215,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goForeground() {
-        if (isServiceStarted) {
-            Log.d("Main", "Going foreground");
-            Intent intent = new Intent(this, TcpService.class);
-            intent.setAction(Constants.ACTION.START_FOREGROUND);
-            startService(intent);
-        }
+        Log.d("Main", "Going foreground");
+        Intent intent = new Intent(this, TcpService.class);
+        intent.setAction(Constants.ACTION.START_FOREGROUND);
+        startService(intent);
+
     }
 
     private void goBackground() {
-        if (isServiceStarted) {
-            Log.d("Main", "Going background");
-            Intent intent = new Intent(this, TcpService.class);
-            intent.setAction(Constants.ACTION.STOP_FOREGROUND);
-            startService(intent);
-        }
+        Log.d("Main", "Going background");
+        Intent intent = new Intent(this, TcpService.class);
+        intent.setAction(Constants.ACTION.STOP_FOREGROUND);
+        startService(intent);
+
     }
 
     private void releaseViewModels() {

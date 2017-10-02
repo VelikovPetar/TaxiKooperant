@@ -68,6 +68,7 @@ public class TcpClient implements
                 waitMillis(1000);
                 if (attempts++ == 10 && shouldAutomaticallyReconnect) {
                     networkStatusSubject.onNext(StatusModel.NOT_CONNECTED);
+                    Log.d("TCP", "Not connected");
                     waitMillis(5000);
                     attempts = 0;
                 }
@@ -145,14 +146,14 @@ public class TcpClient implements
             if (i < readBytes - 1) {
                 if ((buffer[i] == 'A' && buffer[i + 1] == 'A') || (buffer[i] == 'B' && buffer[i + 1] == 'B')) {
                     if (bytes.size() > 0) {
-                        // TODO Parse msg
+                        dataSubject.onNext(toByteArray(bytes));
                         bytes = new ArrayList<>();
                     }
                 }
             }
             bytes.add(buffer[i]);
         }
-        // TODO parse message
+        dataSubject.onNext(toByteArray(bytes));
     }
 
     private void setupSocket() throws IOException {
@@ -214,5 +215,14 @@ public class TcpClient implements
         inputStream = null;
         outputStream = null;
         socket = null;
+    }
+
+    private byte[] toByteArray(ArrayList<Byte> list) {
+        int size = list.size();
+        byte[] bytes = new byte[size];
+        for (int i = 0; i < size; ++i) {
+            bytes[i] = list.get(i);
+        }
+        return bytes;
     }
 }

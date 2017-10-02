@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Такси кооперант</string>
     <string name="app_in_background">Апликацијата работи во позадина</string>
+    <string name="exit">Излез</string>
+    <string name="connection">Конекција:</string>
+    <string name="location">Локација:</string>
+    <string name="server">Сервер:</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_no_connection">No connection</string>
+    <string name="gps">GPS</string>
+    <string name="network">Network</string>
+    <string name="no_location">No location service</string>
 </resources>
