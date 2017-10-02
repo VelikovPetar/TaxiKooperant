@@ -6,18 +6,24 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
 import com.petarvelikov.taxikooperant.constants.Constants;
+import com.petarvelikov.taxikooperant.model.messages.AbstractMessage;
+import com.petarvelikov.taxikooperant.model.messages.RingBellMessage;
 import com.petarvelikov.taxikooperant.model.reader.TcpMessageReader;
+import com.petarvelikov.taxikooperant.model.sound_manager.SoundManager;
 import com.petarvelikov.taxikooperant.model.writer.TcpMessageWriter;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
 import javax.inject.Inject;
+
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 
 
 public class TcpService extends Service {
@@ -30,6 +36,10 @@ public class TcpService extends Service {
     TcpMessageWriter tcpMessageWriter;
     @Inject
     TcpMessageReader tcpMessageReader;
+    @Inject
+    SoundManager soundManager;
+
+    private Disposable disposable;
 
     private final Binder binder = new TcpServiceBinder();
 
@@ -58,16 +68,24 @@ public class TcpService extends Service {
         switch (intent.getAction()) {
             case Constants.ACTION.START_FOREGROUND:
                 Notification notification = buildNotification();
-                startForeground(1001, notification);
+                startForeground(NOTIFICATION_ID, notification);
+                listenForMessages();
                 break;
-
             case Constants.ACTION.STOP_FOREGROUND:
                 stopForeground(true);
+                stopListeningForMessages();
                 break;
             case Constants.ACTION.STOP_SERVICE:
                 stopForeground(true);
                 stopWork();
                 stopSelf();
+                break;
+            case Constants.ACTION.STOP_RINGING:
+                soundManager.stopSound();
+                break;
+            // TODO Remove this
+            case Constants.ACTION.START_RINGING:
+                soundManager.playSound(10);
                 break;
         }
         return START_STICKY;
@@ -83,11 +101,11 @@ public class TcpService extends Service {
     public void stopWork() {
         tcpMessageReader.stopListeningForMessages();
         tcpMessageWriter.stopSendingUpdates();
+        soundManager.stopSound();
         if (tcpClient != null) {
             tcpClient.stop();
             tcpClient = null;
         }
-
     }
 
     private Notification buildNotification() {
@@ -105,9 +123,46 @@ public class TcpService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .addAction(R.drawable.ic_power_settings_new_black_24dp, "Exit", exitPendingIntent)
+//                .addAction(R.drawable.ic_exit, getString(R.string.exit), exitPendingIntent)
+                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_exit,
+                        getString(R.string.exit), exitPendingIntent).build())
+                .setPriority(Notification.PRIORITY_MAX)
                 .build();
         return notification;
+    }
+
+    private void listenForMessages() {
+        tcpMessageReader.getObservableModel()
+                .subscribe(new Observer<AbstractMessage>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onNext(@NonNull AbstractMessage abstractMessage) {
+                        if (abstractMessage instanceof RingBellMessage) {
+                            RingBellMessage message = (RingBellMessage) abstractMessage;
+                            soundManager.playSound(message.getSeconds());
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void stopListeningForMessages() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 
     public class TcpServiceBinder extends Binder {

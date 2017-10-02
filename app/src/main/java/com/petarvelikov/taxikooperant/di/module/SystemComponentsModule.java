@@ -4,6 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 import javax.inject.Singleton;
@@ -30,5 +33,19 @@ public class SystemComponentsModule {
     @Singleton
     public LocationManager provideLocationManager(Application application) {
         return (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @Provides
+    @Singleton
+    public SoundPool provideSoundPool() {
+        SoundPool soundPool;
+        if (Build.VERSION.SDK_INT >= 21) {
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(1)
+                    .build();
+        } else {
+            soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        }
+        return soundPool;
     }
 }
