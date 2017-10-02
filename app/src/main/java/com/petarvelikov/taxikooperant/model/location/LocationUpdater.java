@@ -44,6 +44,8 @@ public class LocationUpdater implements LocationListener,
             lastLocation = location;
             locationSubject.onNext(lastLocation);
             statusSubject.onNext(StatusModel.GPS);
+        } else {
+            statusSubject.onNext(StatusModel.NO_LOCATION_SERVICE);
         }
     }
 
