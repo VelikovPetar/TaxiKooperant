@@ -25,7 +25,8 @@
         android:hint="@string/device_id"
         android:imeOptions="actionNext"
         android:inputType="text"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:drawableLeft="@drawable/ic_person_outline_black_24dp" />
 
     <EditText
         android:id="@+id/editInterval"
@@ -39,7 +40,8 @@
         android:hint="@string/interval"
         android:imeOptions="actionDone"
         android:inputType="number"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:drawableLeft="@drawable/ic_loop_black_24dp" />
 
     <TextView
         android:id="@+id/txtVolumeLabel"
