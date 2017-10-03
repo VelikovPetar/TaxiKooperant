@@ -1,7 +1,9 @@
 package com.petarvelikov.taxikooperant.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,8 +18,6 @@ import com.petarvelikov.taxikooperant.model.status.StatusModel;
 import com.petarvelikov.taxikooperant.model.tcp.TcpService;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
-
-import org.w3c.dom.Text;
 
 import javax.inject.Inject;
 
@@ -93,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         goForeground();
-        Log.d("LIFE", "OnStop Main");
+    }
+
+    @Override
+    public void onBackPressed() {
+        promptExit();
     }
 
     private void bindUi() {
@@ -119,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         textViewExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                promptExit();
             }
         });
     }
@@ -238,15 +242,12 @@ public class MainActivity extends AppCompatActivity {
         if (!shouldGoForeground) {
             return;
         }
-        Log.d("Main", "Going foreground");
         Intent intent = new Intent(this, TcpService.class);
         intent.setAction(Constants.ACTION.START_FOREGROUND);
         startService(intent);
-
     }
 
     private void goBackground() {
-        Log.d("Main", "Going background");
         Intent intent = new Intent(this, TcpService.class);
         intent.setAction(Constants.ACTION.STOP_FOREGROUND);
         startService(intent);
@@ -258,6 +259,34 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SettingsActivity.class);
         intent.putExtra(Constants.IS_COMING_FROM_MAIN_ACTIVITY, true);
         startActivity(intent);
+    }
+
+    private void promptExit() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.exit)
+                .setMessage(R.string.confirm_exit)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        exit();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+
+    private void exit() {
+        shouldGoForeground = false;
+        Intent intent = new Intent(this, TcpService.class);
+        intent.setAction(Constants.ACTION.STOP_SERVICE);
+        startService(intent);
+        finish();
     }
 
     private void releaseViewModels() {
