@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.util.Log;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.constants.Constants;
@@ -67,10 +68,10 @@ public class SoundManager {
     }
 
     private void setVolume() {
-        float volumePercentage = sharedPreferences.getFloat(Constants.VOLUME, 50.0f);
+        float volumePercentage = sharedPreferences.getFloat(Constants.VOLUME, Constants.DEFAULT_VOLUME);
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        float volume = volumePercentage / 100.0f * maxVolume;
+        float volume = volumePercentage * maxVolume;
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) volume, 0);
     }
 }

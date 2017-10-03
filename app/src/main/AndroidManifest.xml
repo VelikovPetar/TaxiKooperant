@@ -20,7 +20,7 @@
         <activity android:name=".view.MainActivity">
 
         </activity>
-        <activity android:name=".view.ConfigActivity">
+        <activity android:name=".view.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

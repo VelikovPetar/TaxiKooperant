@@ -6,6 +6,8 @@ public class Constants {
     public static final String INTERVAL = "interval";
     public static final String VOLUME = "volume";
     public static final String SHOULD_STOP_FOREGROUND = "should_stop_foreground";
+    public static final float DEFAULT_VOLUME = 0.5f;
+    public static final int DEFAULT_INTERVAL = 25;
 
     public interface ACTION {
         String START_FOREGROUND = "com.petarvelikov.taxikooperant.action.startforeground";

@@ -13,4 +13,10 @@
     <string name="no_location">No location service</string>
     <string name="stop_ringing">Исклучи ѕвонење</string>
     <string name="settings">Подесувања</string>
+    <string name="device_id">Број на уред</string>
+    <string name="interval">Интервал на праќање пораки</string>
+    <string name="volume">Јачина на звук</string>
+    <string name="confirm">Потврди</string>
+    <string name="error_empty">Полето не смее да биде празно!</string>
+    <string name="error_not_numeric">Вредноста мора да биде нумеричка!</string>
 </resources>

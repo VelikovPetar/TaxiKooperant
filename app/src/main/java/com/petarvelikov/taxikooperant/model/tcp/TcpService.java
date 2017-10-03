@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.database.Observable;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -19,11 +20,14 @@ import com.petarvelikov.taxikooperant.model.sound_manager.SoundManager;
 import com.petarvelikov.taxikooperant.model.writer.TcpMessageWriter;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 
 public class TcpService extends Service {
@@ -69,6 +73,13 @@ public class TcpService extends Service {
             case Constants.ACTION.START_FOREGROUND:
                 Notification notification = buildNotification();
                 startForeground(NOTIFICATION_ID, notification);
+                io.reactivex.Observable.timer(3, TimeUnit.SECONDS)
+                        .subscribe(new Consumer<Long>() {
+                            @Override
+                            public void accept(Long aLong) throws Exception {
+                                soundManager.playSound(15);
+                            }
+                        });
                 listenForMessages();
                 break;
             case Constants.ACTION.STOP_FOREGROUND:
@@ -123,6 +134,7 @@ public class TcpService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setDefaults(Notification.DEFAULT_ALL)
 //                .addAction(R.drawable.ic_exit, getString(R.string.exit), exitPendingIntent)
                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_exit,
                         getString(R.string.exit), exitPendingIntent).build())

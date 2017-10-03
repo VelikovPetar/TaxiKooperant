@@ -4,7 +4,7 @@ package com.petarvelikov.taxikooperant.di.component;
 import com.petarvelikov.taxikooperant.di.module.ActivityModule;
 import com.petarvelikov.taxikooperant.di.module.ViewModelInterfaceModule;
 import com.petarvelikov.taxikooperant.di.scope.ActivityScope;
-import com.petarvelikov.taxikooperant.view.ConfigActivity;
+import com.petarvelikov.taxikooperant.view.SettingsActivity;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
 import dagger.Component;
@@ -15,5 +15,5 @@ import dagger.Component;
 public interface ActivityComponent {
     void inject(MainActivity activity);
 
-    void inject(ConfigActivity activity);
+    void inject(SettingsActivity activity);
 }
