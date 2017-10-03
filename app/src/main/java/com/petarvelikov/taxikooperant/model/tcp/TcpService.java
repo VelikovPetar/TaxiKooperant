@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
@@ -20,11 +21,15 @@ import com.petarvelikov.taxikooperant.model.sound_manager.SoundManager;
 import com.petarvelikov.taxikooperant.model.writer.TcpMessageWriter;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 
 public class TcpService extends Service {
@@ -44,6 +49,7 @@ public class TcpService extends Service {
     private PhoneStateListener phoneStateListener;
 
     private Disposable disposable;
+    private Disposable ddd;
 
     @Nullable
     @Override
@@ -58,11 +64,13 @@ public class TcpService extends Service {
         app.component().inject(this);
         registerPhoneStateListener();
         startWork();
+        listenForMessages();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopListeningForMessages();
         stopWork();
         unregisterPhoneStateListener();
     }
@@ -73,11 +81,9 @@ public class TcpService extends Service {
             case Constants.ACTION.START_FOREGROUND:
                 Notification notification = buildNotification();
                 startForeground(NOTIFICATION_ID, notification);
-                listenForMessages();
                 break;
             case Constants.ACTION.STOP_FOREGROUND:
                 stopForeground(true);
-                stopListeningForMessages();
                 break;
             case Constants.ACTION.STOP_SERVICE:
                 stopForeground(true);
@@ -89,7 +95,14 @@ public class TcpService extends Service {
                 break;
             // TODO Remove this
             case Constants.ACTION.START_RINGING:
-                soundManager.playSound(7);
+//                soundManager.playSound(7);
+                ddd = Observable.timer(7, TimeUnit.SECONDS)
+                        .subscribe(new Consumer<Long>() {
+                            @Override
+                            public void accept(Long aLong) throws Exception {
+                                tcpMessageReader.sendRingMessage();
+                            }
+                        });
                 break;
         }
         return START_STICKY;
@@ -110,6 +123,9 @@ public class TcpService extends Service {
             tcpClient.stop();
             tcpClient = null;
         }
+        if (ddd != null && !ddd.isDisposed()) {
+            ddd.dispose();
+        }
     }
 
     private Notification buildNotification() {
@@ -127,6 +143,7 @@ public class TcpService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setDefaults(Notification.DEFAULT_ALL)
 //                .addAction(R.drawable.ic_exit, getString(R.string.exit), exitPendingIntent)
                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_exit,
