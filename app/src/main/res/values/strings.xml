@@ -24,4 +24,6 @@
     <string name="confirm_exit">Дали сакате да излезете од апликацијата?</string>
     <string name="yes">Да</string>
     <string name="no">Не</string>
+    <string name="selected_for_call">Селектиран сте за повик.</string>
+    <string name="error_no_permissions">Не може да ја користите апликација без да дозволите да користи локациски сервиси.</string>
 </resources>

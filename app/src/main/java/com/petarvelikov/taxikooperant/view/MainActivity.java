@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -14,10 +13,15 @@ import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
 import com.petarvelikov.taxikooperant.constants.Constants;
 import com.petarvelikov.taxikooperant.di.component.DaggerActivityComponent;
+import com.petarvelikov.taxikooperant.model.messages.AbstractMessage;
+import com.petarvelikov.taxikooperant.model.messages.RingBellMessage;
 import com.petarvelikov.taxikooperant.model.status.StatusModel;
 import com.petarvelikov.taxikooperant.model.tcp.TcpService;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -37,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private TextView textViewConnection, textViewServer, textViewLocation,
-            textViewExit, textViewSettings;
+            textViewExit, textViewSettings, textViewMessage;
     private Button buttonStop;
     private boolean shouldGoForeground = true;
 
@@ -74,12 +78,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         subscribeForStatusUpdates();
+        subscribeForMessageUpdates();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unsubscribeForStatusUpdates();
+        unsubscribeForMessageUpdates();
     }
 
     @Override
@@ -113,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         setupExitButton();
         setupSettingsButton();
         setupStopButton();
+        textViewMessage = (TextView) findViewById(R.id.txtMessage);
         textViewConnection = (TextView) findViewById(R.id.txtConnectionStatus);
         textViewServer = (TextView) findViewById(R.id.txtServerStatus);
         textViewLocation = (TextView) findViewById(R.id.txtLocationStatus);
@@ -146,8 +153,51 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
                 intent.setAction(Constants.ACTION.STOP_RINGING);
                 startService(intent);
+                textViewMessage.setText("");
             }
         });
+    }
+
+    private void subscribeForMessageUpdates() {
+        messageViewModel.getMessageObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AbstractMessage>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        messagesDisposable = d;
+                    }
+
+                    @Override
+                    public void onNext(@NonNull AbstractMessage abstractMessage) {
+                        displayMessage(abstractMessage);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void unsubscribeForMessageUpdates() {
+        if (messagesDisposable != null && !messagesDisposable.isDisposed()) {
+            messagesDisposable.dispose();
+        }
+    }
+
+    private void displayMessage(AbstractMessage abstractMessage) {
+        if (abstractMessage instanceof RingBellMessage) {
+            String message = getString(R.string.selected_for_call) +
+                    "\n" + getTime(abstractMessage.getTimestamp());
+            textViewMessage.setText(message);
+        } else {
+            textViewMessage.setText("");
+        }
     }
 
     private void subscribeForStatusUpdates() {
@@ -157,23 +207,21 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
                         statusDisposable = d;
-                        Log.d("Main", "Rx Subscribe");
                     }
 
                     @Override
                     public void onNext(@NonNull StatusModel status) {
-                        Log.d("Main", "Rx Next");
                         updateStatus(status);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Main", "Rx Error");
+
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.d("Main", "Rx Complete");
+
                     }
                 });
     }
@@ -181,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
     private void unsubscribeForStatusUpdates() {
         if (statusDisposable != null && !statusDisposable.isDisposed()) {
             statusDisposable.dispose();
-            Log.d("Main", "Rx Dispose");
         }
     }
 
@@ -228,14 +275,6 @@ public class MainActivity extends AppCompatActivity {
                 textViewLocation.setTextColor(getResources().getColor(R.color.colorGreen));
                 break;
         }
-    }
-
-    private void subscribeForMessageUpdates() {
-        // TODO
-    }
-
-    private void unsubscribeForMessageUpdates() {
-        // TODO
     }
 
     private void goForeground() {
@@ -294,5 +333,13 @@ public class MainActivity extends AppCompatActivity {
         statusViewModel = null;
         messageViewModel.dispose();
         messageViewModel = null;
+    }
+
+    private String getTime(long millis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(millis);
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+        return String.format(Locale.getDefault(), "%d:%02d", hours, minutes);
     }
 }

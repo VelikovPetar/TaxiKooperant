@@ -1,7 +1,5 @@
 package com.petarvelikov.taxikooperant.view_model;
 
-import android.util.Log;
-
 import com.petarvelikov.taxikooperant.model.status.StatusModel;
 
 import io.reactivex.Observable;
@@ -17,7 +15,6 @@ public class StatusViewModel {
     private Disposable disposable;
 
     public StatusViewModel(ObservableStatusModel observableStatusModel) {
-        Log.d("Main", "SVM created");
         statusSubject = BehaviorSubject.create();
         this.observableStatusModel = observableStatusModel;
         this.observableStatusModel.getObservableStatusModel()
@@ -29,13 +26,12 @@ public class StatusViewModel {
 
                     @Override
                     public void onNext(@NonNull StatusModel statusModel) {
-                        Log.d("Main", "SVM OnNext");
                         statusSubject.onNext(statusModel);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Main", "SVM OnError");
+
                     }
 
                     @Override

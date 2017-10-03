@@ -22,7 +22,6 @@ public class StatusUpdater implements StatusViewModel.ObservableStatusModel {
     private Disposable serverDisposable, networkDisposable, locationDisposable;
 
     private StatusModel status = new StatusModel(
-            StatusModel.NO_LOGGED_DRIVER,
             StatusModel.NOT_CONNECTED,
             StatusModel.NO_LOCATION_SERVICE,
             StatusModel.NOT_CONNECTED

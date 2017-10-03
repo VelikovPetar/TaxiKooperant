@@ -2,6 +2,7 @@ package com.petarvelikov.taxikooperant.model.reader;
 
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.messages.AbstractMessage;
+import com.petarvelikov.taxikooperant.model.messages.RingBellMessage;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 
 import javax.inject.Inject;
@@ -52,7 +53,10 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
 
                     @Override
                     public void onNext(@NonNull AbstractMessage abstractMessage) {
-                        messageSubject.onNext(abstractMessage);
+                        // Propagate only messages that indicate bell rings
+                        if (abstractMessage instanceof RingBellMessage) {
+                            messageSubject.onNext(abstractMessage);
+                        }
                     }
 
                     @Override
@@ -71,6 +75,13 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+        // Fix bug where the last published message is saved after the tcpService was closed
+        messageSubject = BehaviorSubject.create();
+    }
+
+    public void sendRingMessage() {
+        RingBellMessage rbm = new RingBellMessage(10);
+        messageSubject.onNext(rbm);
     }
 
     @Override
