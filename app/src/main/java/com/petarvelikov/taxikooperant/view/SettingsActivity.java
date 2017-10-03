@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -23,7 +24,8 @@ import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
 import com.petarvelikov.taxikooperant.constants.Constants;
 import com.petarvelikov.taxikooperant.di.component.DaggerActivityComponent;
-import com.petarvelikov.taxikooperant.model.settings.SettingsController;
+import com.petarvelikov.taxikooperant.model.tcp.TcpService;
+import com.petarvelikov.taxikooperant.view_model.SettingsController;
 
 import javax.inject.Inject;
 
@@ -37,8 +39,9 @@ public class SettingsActivity extends AppCompatActivity {
     SettingsController settingsController;
 
     private Button confirmButton;
-    private EditText deviceIdEditText, intervalEditText;
+    private EditText editTextDeviceId, editTextInterval;
     private SeekBar volumeSeekBar;
+    private boolean isComingFromMainActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,9 +54,25 @@ public class SettingsActivity extends AppCompatActivity {
                 .inject(this);
         bindUi();
         requestPermissions();
-        if (settingsController.hasUserId()) {
+        if (getIntent() != null) {
+            isComingFromMainActivity =
+                    getIntent().getBooleanExtra(Constants.IS_COMING_FROM_MAIN_ACTIVITY, false);
+        }
+        if (!isComingFromMainActivity && settingsController.hasUserId()) {
             goToMainActivity();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isComingFromMainActivity) {
+            Intent intent = new Intent(this, TcpService.class);
+            intent.setAction(Constants.ACTION.STOP_FOREGROUND);
+            startService(intent);
+            Log.d("LIFE", "OnStart Settings <- from Main");
+        }
+        Log.d("LIFE", "OnStart Settings");
     }
 
     @Override
@@ -87,12 +106,12 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void setupDeviceIdEditText() {
-        deviceIdEditText = (EditText) findViewById(R.id.editDeviceId);
+        editTextDeviceId = (EditText) findViewById(R.id.editDeviceId);
     }
 
     private void setupIntervalEditText() {
-        intervalEditText = (EditText) findViewById(R.id.editInterval);
-        intervalEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        editTextInterval = (EditText) findViewById(R.id.editInterval);
+        editTextInterval.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -127,9 +146,9 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private boolean validateFields() {
-        String text = deviceIdEditText.getText().toString().trim();
+        String text = editTextDeviceId.getText().toString().trim();
         if (text.equals("") && !settingsController.hasUserId()) {
-            deviceIdEditText.setError(getString(R.string.error_empty));
+            editTextDeviceId.setError(getString(R.string.error_empty));
             return false;
         }
         return true;
@@ -137,26 +156,28 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void confirm() {
         if (validateFields()) {
-            deviceIdEditText.setError(null);
-            String text = deviceIdEditText.getText().toString().trim();
+            editTextDeviceId.setError(null);
+            String text = editTextDeviceId.getText().toString().trim();
             settingsController.setUserId(text);
             try {
-                text = intervalEditText.getText().toString().trim();
+                text = editTextInterval.getText().toString().trim();
                 if (!text.equals("")) {
                     int seconds = Integer.parseInt(text);
                     settingsController.setInterval(seconds);
                 }
-                intervalEditText.setError(null);
+                editTextInterval.setError(null);
                 goToMainActivity();
             } catch (Exception e) {
-                intervalEditText.setError(getString(R.string.error_not_numeric));
+                editTextInterval.setError(getString(R.string.error_not_numeric));
             }
         }
     }
 
     private void goToMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        if (!isComingFromMainActivity) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
         finish();
     }
 

@@ -1,4 +1,4 @@
-package com.petarvelikov.taxikooperant.model.settings;
+package com.petarvelikov.taxikooperant.view_model;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -19,8 +19,7 @@ public class SettingsController {
     }
 
     public boolean hasUserId() {
-//        return sharedPreferences.contains(Constants.USER_ID);
-        return false;
+        return sharedPreferences.contains(Constants.USER_ID);
     }
 
     public String getUserId() {

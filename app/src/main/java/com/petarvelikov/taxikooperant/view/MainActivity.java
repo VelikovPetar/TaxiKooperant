@@ -17,6 +17,8 @@ import com.petarvelikov.taxikooperant.model.tcp.TcpService;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 import com.petarvelikov.taxikooperant.view_model.StatusViewModel;
 
+import org.w3c.dom.Text;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
@@ -34,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private Disposable statusDisposable;
 
 
-    private TextView textViewConnection, textViewServer, textViewLocation;
+    private TextView textViewConnection, textViewServer, textViewLocation,
+            textViewExit, textViewSettings;
+    private Button buttonStop;
+    private boolean shouldGoForeground = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,12 +86,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         goBackground();
+        shouldGoForeground = true;
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         goForeground();
+        Log.d("LIFE", "OnStop Main");
     }
 
     private void bindUi() {
@@ -99,8 +106,37 @@ public class MainActivity extends AppCompatActivity {
                 startService(intent);
             }
         });
-        Button stopButton = (Button) findViewById(R.id.btnStopRinging);
-        stopButton.setOnClickListener(new View.OnClickListener() {
+        setupExitButton();
+        setupSettingsButton();
+        setupStopButton();
+        textViewConnection = (TextView) findViewById(R.id.txtConnectionStatus);
+        textViewServer = (TextView) findViewById(R.id.txtServerStatus);
+        textViewLocation = (TextView) findViewById(R.id.txtLocationStatus);
+    }
+
+    private void setupExitButton() {
+        textViewExit = (TextView) findViewById(R.id.txtExit);
+        textViewExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    private void setupSettingsButton() {
+        textViewSettings = (TextView) findViewById(R.id.txtSettings);
+        textViewSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToSettingsActivity();
+            }
+        });
+    }
+
+    private void setupStopButton() {
+        buttonStop = (Button) findViewById(R.id.btnStopRinging);
+        buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
@@ -108,9 +144,6 @@ public class MainActivity extends AppCompatActivity {
                 startService(intent);
             }
         });
-        textViewConnection = (TextView) findViewById(R.id.txtConnectionStatus);
-        textViewServer = (TextView) findViewById(R.id.txtServerStatus);
-        textViewLocation = (TextView) findViewById(R.id.txtLocationStatus);
     }
 
     private void subscribeForStatusUpdates() {
@@ -152,34 +185,43 @@ public class MainActivity extends AppCompatActivity {
         switch (status.getNetworkStatus()) {
             case StatusModel.NOT_CONNECTED:
                 textViewConnection.setText(R.string.status_no_connection);
+                textViewConnection.setTextColor(getResources().getColor(R.color.colorRed));
                 break;
             case StatusModel.CONNECTING:
                 textViewConnection.setText(R.string.status_connecting);
+                textViewConnection.setTextColor(getResources().getColor(R.color.colorYellow));
                 break;
             case StatusModel.CONNECTED:
                 textViewConnection.setText(R.string.status_connected);
+                textViewConnection.setTextColor(getResources().getColor(R.color.colorGreen));
                 break;
         }
         switch (status.getServerStatus()) {
             case StatusModel.NOT_CONNECTED:
                 textViewServer.setText(R.string.status_no_connection);
+                textViewServer.setTextColor(getResources().getColor(R.color.colorRed));
                 break;
             case StatusModel.CONNECTING:
                 textViewServer.setText(R.string.status_connecting);
+                textViewServer.setTextColor(getResources().getColor(R.color.colorYellow));
                 break;
             case StatusModel.CONNECTED:
                 textViewServer.setText(R.string.status_connected);
+                textViewServer.setTextColor(getResources().getColor(R.color.colorGreen));
                 break;
         }
         switch (status.getLocationServiceStatus()) {
             case StatusModel.NO_LOCATION_SERVICE:
                 textViewLocation.setText(R.string.no_location);
+                textViewLocation.setTextColor(getResources().getColor(R.color.colorRed));
                 break;
             case StatusModel.NETWORK:
                 textViewLocation.setText(R.string.network);
+                textViewLocation.setTextColor(getResources().getColor(R.color.colorYellow));
                 break;
             case StatusModel.GPS:
                 textViewLocation.setText(R.string.gps);
+                textViewLocation.setTextColor(getResources().getColor(R.color.colorGreen));
                 break;
         }
     }
@@ -193,6 +235,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goForeground() {
+        if (!shouldGoForeground) {
+            return;
+        }
         Log.d("Main", "Going foreground");
         Intent intent = new Intent(this, TcpService.class);
         intent.setAction(Constants.ACTION.START_FOREGROUND);
@@ -206,6 +251,13 @@ public class MainActivity extends AppCompatActivity {
         intent.setAction(Constants.ACTION.STOP_FOREGROUND);
         startService(intent);
 
+    }
+
+    private void goToSettingsActivity() {
+        shouldGoForeground = false;
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra(Constants.IS_COMING_FROM_MAIN_ACTIVITY, true);
+        startActivity(intent);
     }
 
     private void releaseViewModels() {

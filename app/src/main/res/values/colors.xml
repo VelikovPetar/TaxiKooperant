@@ -3,7 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorExitRed">#b71c1c</color>
+    <color name="colorRed">#b71c1c</color>
+    <color name="colorYellow">#f9a825</color>
+    <color name="colorGreen">#2e7d32</color>
     <color name="colorBlack">#000000</color>
     <color name="colorDarkText">#212121</color>
 </resources>
