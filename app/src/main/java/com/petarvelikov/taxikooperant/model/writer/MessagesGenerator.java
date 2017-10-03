@@ -140,7 +140,7 @@ public class MessagesGenerator {
         message[58] = (byte) (kmTaxi >> 8);
         message[59] = (byte) (kmTaxi >> 16);
         message[60] = (byte) (kmTaxi >> 24);
-        // ID Card TODO What to send here?
+        // ID Card
         message[61] = '0';
         message[62] = '0';
         message[63] = '0';

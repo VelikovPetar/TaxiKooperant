@@ -1,11 +1,7 @@
 package com.petarvelikov.taxikooperant.model.reader;
 
-import android.util.Log;
-
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.messages.AbstractMessage;
-import com.petarvelikov.taxikooperant.model.messages.ErrorMessage;
-import com.petarvelikov.taxikooperant.model.messages.RingBellMessage;
 import com.petarvelikov.taxikooperant.view_model.MessageViewModel;
 
 import javax.inject.Inject;
@@ -17,7 +13,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
 @Singleton
 public class TcpMessageReader implements MessageViewModel.ObservableMessageModel {
@@ -25,14 +21,13 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
     private MessageObservable messageObservable;
     private MessageParser parser;
     private Disposable disposable;
-    private PublishSubject<AbstractMessage> messageSubject;
+    private BehaviorSubject<AbstractMessage> messageSubject;
 
     @Inject
     public TcpMessageReader(MessageObservable messageObservable, MessageParser parser) {
         this.messageObservable = messageObservable;
         this.parser = parser;
-        this.messageSubject = PublishSubject.create();
-        Log.d("Injection", "A reader is created");
+        this.messageSubject = BehaviorSubject.create();
     }
 
     @Override
@@ -46,7 +41,6 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
                 .map(new Function<byte[], AbstractMessage>() {
                     @Override
                     public AbstractMessage apply(@NonNull byte[] message) throws Exception {
-                        Log.d("Reader", "Mapping bytes to Message");
                         return parser.parse(message);
                     }
                 })
@@ -58,21 +52,12 @@ public class TcpMessageReader implements MessageViewModel.ObservableMessageModel
 
                     @Override
                     public void onNext(@NonNull AbstractMessage abstractMessage) {
-                        if (abstractMessage instanceof ErrorMessage) {
-                            ErrorMessage e = (ErrorMessage) abstractMessage;
-                            Log.d("Reader", e.getMessage());
-                        } else if (abstractMessage instanceof RingBellMessage) {
-                            RingBellMessage m = (RingBellMessage) abstractMessage;
-                            Log.d("Reader", "Seconds " + m.getSeconds());
-                        } else {
-                            Log.d("Reader", "Error");
-                        }
                         messageSubject.onNext(abstractMessage);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Reader", e.getMessage());
+
                     }
 
                     @Override

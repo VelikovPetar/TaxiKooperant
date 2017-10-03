@@ -120,7 +120,25 @@ public class TcpClient implements
 
     @Override
     public boolean writeMessage(byte[] message) {
-        return false;
+        synchronized (this) {
+            if (!networkMonitor.hasInternetConnection()) {
+                return false;
+            }
+            if (message == null) {
+                return false;
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.write(message);
+                    outputStream.flush();
+                } catch (IOException e) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
