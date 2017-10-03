@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
 
 import javax.inject.Singleton;
 
@@ -47,5 +48,11 @@ public class SystemComponentsModule {
             soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         }
         return soundPool;
+    }
+
+    @Provides
+    @Singleton
+    public TelephonyManager provideTelephonyManager(Context context) {
+        return (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     }
 }

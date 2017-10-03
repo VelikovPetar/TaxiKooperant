@@ -4,11 +4,11 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.database.Observable;
-import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.application.App;
@@ -20,14 +20,11 @@ import com.petarvelikov.taxikooperant.model.sound_manager.SoundManager;
 import com.petarvelikov.taxikooperant.model.writer.TcpMessageWriter;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 
 public class TcpService extends Service {
@@ -42,15 +39,16 @@ public class TcpService extends Service {
     TcpMessageReader tcpMessageReader;
     @Inject
     SoundManager soundManager;
+    @Inject
+    TelephonyManager telephonyManager;
+    private PhoneStateListener phoneStateListener;
 
     private Disposable disposable;
-
-    private final Binder binder = new TcpServiceBinder();
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+        return null;
     }
 
     @Override
@@ -58,6 +56,7 @@ public class TcpService extends Service {
         super.onCreate();
         App app = (App) getApplication();
         app.component().inject(this);
+        registerPhoneStateListener();
         startWork();
     }
 
@@ -65,6 +64,7 @@ public class TcpService extends Service {
     public void onDestroy() {
         super.onDestroy();
         stopWork();
+        unregisterPhoneStateListener();
     }
 
     @Override
@@ -73,13 +73,6 @@ public class TcpService extends Service {
             case Constants.ACTION.START_FOREGROUND:
                 Notification notification = buildNotification();
                 startForeground(NOTIFICATION_ID, notification);
-                io.reactivex.Observable.timer(3, TimeUnit.SECONDS)
-                        .subscribe(new Consumer<Long>() {
-                            @Override
-                            public void accept(Long aLong) throws Exception {
-                                soundManager.playSound(15);
-                            }
-                        });
                 listenForMessages();
                 break;
             case Constants.ACTION.STOP_FOREGROUND:
@@ -96,7 +89,7 @@ public class TcpService extends Service {
                 break;
             // TODO Remove this
             case Constants.ACTION.START_RINGING:
-                soundManager.playSound(10);
+                soundManager.playSound(7);
                 break;
         }
         return START_STICKY;
@@ -128,7 +121,7 @@ public class TcpService extends Service {
         Intent exitIntent = new Intent(this, TcpService.class);
         exitIntent.setAction(Constants.ACTION.STOP_SERVICE);
         PendingIntent exitPendingIntent = PendingIntent.getService(this, 0, exitIntent, 0);
-        Notification notification = new NotificationCompat.Builder(this)
+        return new NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.app_in_background))
                 .setContentIntent(pendingIntent)
@@ -138,9 +131,8 @@ public class TcpService extends Service {
 //                .addAction(R.drawable.ic_exit, getString(R.string.exit), exitPendingIntent)
                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_exit,
                         getString(R.string.exit), exitPendingIntent).build())
-                .setPriority(Notification.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .build();
-        return notification;
     }
 
     private void listenForMessages() {
@@ -177,9 +169,22 @@ public class TcpService extends Service {
         }
     }
 
-    public class TcpServiceBinder extends Binder {
-        public TcpService getTcpService() {
-            return TcpService.this;
-        }
+    private void registerPhoneStateListener() {
+        phoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                if (state == TelephonyManager.CALL_STATE_RINGING ||
+                        state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                    soundManager.stopSound();
+                }
+                super.onCallStateChanged(state, incomingNumber);
+            }
+        };
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
+
+    private void unregisterPhoneStateListener() {
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+    }
+
 }
