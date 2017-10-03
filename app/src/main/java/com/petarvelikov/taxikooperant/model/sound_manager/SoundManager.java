@@ -40,7 +40,7 @@ public class SoundManager {
                 canPlay = true;
             }
         });
-        ringId = soundPool.load(this.context, R.raw.beep, 1);
+        ringId = soundPool.load(this.context, R.raw.beep_trimmed, 1);
     }
 
     public void playSound(int seconds) {
