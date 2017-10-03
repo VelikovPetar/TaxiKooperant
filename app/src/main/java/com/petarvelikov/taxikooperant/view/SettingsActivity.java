@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -70,9 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
             Intent intent = new Intent(this, TcpService.class);
             intent.setAction(Constants.ACTION.STOP_FOREGROUND);
             startService(intent);
-            Log.d("LIFE", "OnStart Settings <- from Main");
         }
-        Log.d("LIFE", "OnStart Settings");
     }
 
     @Override
@@ -83,7 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if (grantResults.length > 1) {
                     if (grantResults[0] != PackageManager.PERMISSION_GRANTED ||
                             grantResults[1] != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "Please give permission to use fine location!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.error_no_permissions), Toast.LENGTH_LONG).show();
                         confirmButton.setEnabled(false);
                     } else {
                         confirmButton.setEnabled(true);

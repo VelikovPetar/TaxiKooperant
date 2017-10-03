@@ -2,13 +2,13 @@ package com.petarvelikov.taxikooperant.model.messages;
 
 public abstract class AbstractMessage {
 
-    protected long timestamp;
+    private long timestamp;
 
     public AbstractMessage() {
         this.timestamp = System.currentTimeMillis();
     }
 
-    protected long getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 }

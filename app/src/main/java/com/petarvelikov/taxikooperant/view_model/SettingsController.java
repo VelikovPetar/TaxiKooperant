@@ -1,7 +1,6 @@
 package com.petarvelikov.taxikooperant.view_model;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.petarvelikov.taxikooperant.constants.Constants;
 import com.petarvelikov.taxikooperant.di.scope.ActivityScope;
@@ -43,14 +42,11 @@ public class SettingsController {
     }
 
     public int getVolume() {
-        int volume = (int) (sharedPreferences.getFloat(Constants.VOLUME, Constants.DEFAULT_VOLUME) * 100);
-        Log.d("VOLUME", volume + "");
         return (int) (sharedPreferences.getFloat(Constants.VOLUME, Constants.DEFAULT_VOLUME) * 100);
     }
 
     public void setVolume(int intValue) {
         float floatValue = (float) intValue / 100.0f;
-        Log.d("VOLUME", floatValue + "");
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putFloat(Constants.VOLUME, floatValue);
         editor.apply();

@@ -101,6 +101,7 @@ public class TcpMessageWriter {
             String msg = "";
             for (byte b : message) msg += (char) b;
             Log.d("Messages", msg);
+            // TODO This
 //            messageWriter.writeMessage(message);
         } else {
             Log.d("Messages", "Null location");

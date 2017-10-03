@@ -1,7 +1,5 @@
 package com.petarvelikov.taxikooperant.model.tcp;
 
-import android.util.Log;
-
 import com.petarvelikov.taxikooperant.model.interfaces.ConnectionStatusObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageObservable;
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
@@ -28,6 +26,7 @@ public class TcpClient implements
         ConnectionStatusObservable,
         MessageWriter {
 
+    // TODO IP and PORT
     private static final String SERVER_IP = "some_ip";
     private static final int SERVER_PORT = 1000;
     private static final int TIMEOUT = 50000;
@@ -64,11 +63,9 @@ public class TcpClient implements
             int attempts = 0;
             while (!networkMonitor.hasInternetConnection() && shouldAutomaticallyReconnect) {
                 networkStatusSubject.onNext(StatusModel.CONNECTING);
-                Log.d("TCP", "Connecting...");
                 waitMillis(1000);
                 if (attempts++ == 10 && shouldAutomaticallyReconnect) {
                     networkStatusSubject.onNext(StatusModel.NOT_CONNECTED);
-                    Log.d("TCP", "Not connected");
                     waitMillis(5000);
                     attempts = 0;
                 }
@@ -187,7 +184,6 @@ public class TcpClient implements
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            Log.d("TCP", "Interrupted exception");
         }
     }
 

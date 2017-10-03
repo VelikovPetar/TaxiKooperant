@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.util.Log;
 
 import com.petarvelikov.taxikooperant.R;
 import com.petarvelikov.taxikooperant.constants.Constants;
