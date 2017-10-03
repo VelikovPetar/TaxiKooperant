@@ -5,6 +5,7 @@ public class ErrorMessage extends AbstractMessage {
     private String errorMessage;
 
     public ErrorMessage(String errorMessage) {
+        super();
         this.errorMessage = errorMessage;
     }
 

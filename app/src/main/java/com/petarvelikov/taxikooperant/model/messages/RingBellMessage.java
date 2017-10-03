@@ -5,6 +5,7 @@ public class RingBellMessage extends AbstractMessage {
     private int seconds;
 
     public RingBellMessage(int seconds) {
+        super();
         this.seconds = seconds;
     }
 

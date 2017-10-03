@@ -6,6 +6,7 @@ public class PopupMessage extends AbstractMessage {
     private byte source;
 
     public PopupMessage(String textMessage, byte source) {
+        super();
         this.textMessage = textMessage;
         this.source = source;
     }
