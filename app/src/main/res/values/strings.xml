@@ -19,4 +19,6 @@
     <string name="confirm">Потврди</string>
     <string name="error_empty">Полето не смее да биде празно!</string>
     <string name="error_not_numeric">Вредноста мора да биде нумеричка!</string>
+    <string name="confirm_code">Код за потврда</string>
+    <string name="error_wrong_code">Погрешен код!</string>
 </resources>

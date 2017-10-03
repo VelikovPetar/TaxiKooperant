@@ -39,7 +39,7 @@ public class SettingsActivity extends AppCompatActivity {
     SettingsController settingsController;
 
     private Button confirmButton;
-    private EditText editTextDeviceId, editTextInterval;
+    private EditText editTextDeviceId, editTextInterval, editTextConfirmationCode;
     private SeekBar volumeSeekBar;
     private boolean isComingFromMainActivity;
 
@@ -96,6 +96,7 @@ public class SettingsActivity extends AppCompatActivity {
         setupDeviceIdEditText();
         setupIntervalEditText();
         setupVolumeSeekBar();
+        setupConfirmationCodeEditText();
         confirmButton = (Button) findViewById(R.id.btnConfirm);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +112,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupIntervalEditText() {
         editTextInterval = (EditText) findViewById(R.id.editInterval);
-        editTextInterval.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+    }
+
+    private void setupConfirmationCodeEditText() {
+        editTextConfirmationCode = (EditText) findViewById(R.id.editConfirmCode);
+        editTextConfirmationCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -145,7 +150,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validateFields() {
+    private boolean validateDeviceId() {
         String text = editTextDeviceId.getText().toString().trim();
         if (text.equals("") && !settingsController.hasUserId()) {
             editTextDeviceId.setError(getString(R.string.error_empty));
@@ -154,11 +159,23 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
+    private boolean validateConfirmationCode() {
+        String text = editTextConfirmationCode.getText().toString().trim();
+        if (!text.equals(settingsController.getConfirmationCode())) {
+            editTextConfirmationCode.setError(getString(R.string.error_wrong_code));
+            return false;
+        }
+        return true;
+    }
+
     private void confirm() {
-        if (validateFields()) {
+        if (validateDeviceId() && validateConfirmationCode()) {
             editTextDeviceId.setError(null);
+            editTextConfirmationCode.setError(null);
             String text = editTextDeviceId.getText().toString().trim();
-            settingsController.setUserId(text);
+            if (!text.equals("")) {
+                settingsController.setUserId(text);
+            }
             try {
                 text = editTextInterval.getText().toString().trim();
                 if (!text.equals("")) {

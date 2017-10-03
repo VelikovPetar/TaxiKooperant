@@ -11,6 +11,7 @@ import javax.inject.Inject;
 @ActivityScope
 public class SettingsController {
 
+    private static final String CONFIRMATION_CODE = "12345";
     private SharedPreferences sharedPreferences;
 
     @Inject
@@ -53,5 +54,9 @@ public class SettingsController {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putFloat(Constants.VOLUME, floatValue);
         editor.apply();
+    }
+
+    public String getConfirmationCode() {
+        return CONFIRMATION_CODE;
     }
 }
