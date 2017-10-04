@@ -41,7 +41,6 @@ public class MessageViewModel {
                                         messageSubject.onNext(new ClearMessage());
                                     }
                                 });
-
                     }
 
                     @Override
@@ -72,7 +71,8 @@ public class MessageViewModel {
     private long calculateRemainingTime(RingBellMessage message) {
         long currentTime = System.currentTimeMillis();
         long secondsPassed = (currentTime - message.getTimestamp()) / 1000;
-        return message.getSeconds() - secondsPassed;
+        long delay = message.getSeconds() - secondsPassed;
+        return Math.max(0, delay);
     }
 
     public interface ObservableMessageModel {
