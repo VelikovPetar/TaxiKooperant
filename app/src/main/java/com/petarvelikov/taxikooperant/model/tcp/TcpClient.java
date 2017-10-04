@@ -26,9 +26,8 @@ public class TcpClient implements
         ConnectionStatusObservable,
         MessageWriter {
 
-    // TODO IP and PORT
-    private static final String SERVER_IP = "some_ip";
-    private static final int SERVER_PORT = 1000;
+    private static final String SERVER_IP = "62.162.54.10";
+    private static final int SERVER_PORT = 1002;
     private static final int TIMEOUT = 50000;
 
     private Socket socket;
@@ -162,6 +161,11 @@ public class TcpClient implements
                 if ((buffer[i] == 'A' && buffer[i + 1] == 'A') || (buffer[i] == 'B' && buffer[i + 1] == 'B')) {
                     if (bytes.size() > 0) {
                         dataSubject.onNext(toByteArray(bytes));
+//                        String msg = "";
+//                        for (byte b : bytes) {
+//                            msg += (char) b;
+//                        }
+//                        Log.d("TCP", msg);
                         bytes = new ArrayList<>();
                     }
                 }
@@ -169,6 +173,11 @@ public class TcpClient implements
             bytes.add(buffer[i]);
         }
         dataSubject.onNext(toByteArray(bytes));
+//        String msg = "";
+//        for (byte b : bytes) {
+//            msg += (char) b;
+//        }
+//        Log.d("TCP", msg);
     }
 
     private void setupSocket() throws IOException {
