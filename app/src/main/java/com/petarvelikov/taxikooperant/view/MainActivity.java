@@ -153,12 +153,14 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, TcpService.class);
                 intent.setAction(Constants.ACTION.STOP_RINGING);
                 startService(intent);
-                textViewMessage.setText("");
+                messageViewModel.markAsRead();
+//                textViewMessage.setText("");
             }
         });
     }
 
     private void subscribeForMessageUpdates() {
+        messageViewModel.refresh();
         messageViewModel.getMessageObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<AbstractMessage>() {

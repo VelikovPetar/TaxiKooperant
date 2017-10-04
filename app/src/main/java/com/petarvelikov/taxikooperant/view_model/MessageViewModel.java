@@ -18,11 +18,19 @@ public class MessageViewModel {
     private ObservableMessageModel observableMessageModel;
     private BehaviorSubject<AbstractMessage> messageSubject;
     private Disposable disposable, timerDisposable;
+    private volatile AbstractMessage message = new ClearMessage();
 
     public MessageViewModel(ObservableMessageModel observableMessageModel) {
         messageSubject = BehaviorSubject.create();
         this.observableMessageModel = observableMessageModel;
-        this.observableMessageModel.getObservableModel()
+        refresh();
+    }
+
+    // Gets new instance of the observable model,
+    // which is recreated every time the TcpMessageReader stops listening (the service is destroyed)
+    public void refresh() {
+        dispose();
+        observableMessageModel.getObservableModel()
                 .subscribe(new Observer<AbstractMessage>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
@@ -31,14 +39,18 @@ public class MessageViewModel {
 
                     @Override
                     public void onNext(@NonNull AbstractMessage abstractMessage) {
-                        messageSubject.onNext(abstractMessage);
-                        final RingBellMessage message = (RingBellMessage) abstractMessage;
-                        long delay = calculateRemainingTime(message);
+                        if (message == abstractMessage)
+                            return;
+                        message = abstractMessage;
+                        messageSubject.onNext(message);
+                        final RingBellMessage rbMessage = (RingBellMessage) abstractMessage;
+                        long delay = calculateRemainingTime(rbMessage);
                         timerDisposable = Observable.timer(delay, TimeUnit.SECONDS)
                                 .subscribe(new Consumer<Long>() {
                                     @Override
                                     public void accept(Long aLong) throws Exception {
-                                        messageSubject.onNext(new ClearMessage());
+                                        message = new ClearMessage();
+                                        messageSubject.onNext(message);
                                     }
                                 });
                     }
@@ -53,6 +65,14 @@ public class MessageViewModel {
 
                     }
                 });
+    }
+
+    public void markAsRead() {
+        if (timerDisposable != null && !timerDisposable.isDisposed()) {
+            timerDisposable.dispose();
+        }
+        message = new ClearMessage();
+        messageSubject.onNext(message);
     }
 
     public Observable<AbstractMessage> getMessageObservable() {

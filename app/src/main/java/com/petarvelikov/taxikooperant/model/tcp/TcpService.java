@@ -78,6 +78,11 @@ public class TcpService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            stopWork();
+            stopSelf();
+            return START_STICKY;
+        }
         switch (intent.getAction()) {
             case Constants.ACTION.START_FOREGROUND:
                 Notification notification = buildNotification();
@@ -97,7 +102,7 @@ public class TcpService extends Service {
             // TODO Remove this
             case Constants.ACTION.START_RINGING:
 //                soundManager.playSound(7);
-                ddd = Observable.timer(12, TimeUnit.SECONDS)
+                ddd = Observable.timer(4, TimeUnit.SECONDS)
                         .subscribe(new Consumer<Long>() {
                             @Override
                             public void accept(Long aLong) throws Exception {
