@@ -1,7 +1,6 @@
 package com.petarvelikov.taxikooperant.model.writer;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.petarvelikov.taxikooperant.model.interfaces.MessageWriter;
 import com.petarvelikov.taxikooperant.model.location.LocationUpdater;
@@ -98,13 +97,7 @@ public class TcpMessageWriter {
     private void writeLocationUpdate() {
         if (location != null) {
             byte[] message = messagesGenerator.commonMessage(location);
-            String msg = "";
-            for (byte b : message) msg += (char) b;
-            Log.d("Messages", msg);
-            // TODO This
-//            messageWriter.writeMessage(message);
-        } else {
-            Log.d("Messages", "Null location");
+            messageWriter.writeMessage(message);
         }
     }
 

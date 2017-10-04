@@ -39,8 +39,6 @@ public class MessageViewModel {
 
                     @Override
                     public void onNext(@NonNull AbstractMessage abstractMessage) {
-                        if (message == abstractMessage)
-                            return;
                         message = abstractMessage;
                         messageSubject.onNext(message);
                         final RingBellMessage rbMessage = (RingBellMessage) abstractMessage;

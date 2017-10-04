@@ -21,15 +21,11 @@ import com.petarvelikov.taxikooperant.model.sound_manager.SoundManager;
 import com.petarvelikov.taxikooperant.model.writer.TcpMessageWriter;
 import com.petarvelikov.taxikooperant.view.MainActivity;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 
 public class TcpService extends Service {
@@ -49,7 +45,6 @@ public class TcpService extends Service {
     private PhoneStateListener phoneStateListener;
 
     private Disposable disposable;
-    private Disposable ddd;
     private boolean canPlay = true;
 
     @Nullable
@@ -99,17 +94,6 @@ public class TcpService extends Service {
             case Constants.ACTION.STOP_RINGING:
                 soundManager.stopSound();
                 break;
-            // TODO Remove this
-            case Constants.ACTION.START_RINGING:
-//                soundManager.playSound(7);
-                ddd = Observable.timer(4, TimeUnit.SECONDS)
-                        .subscribe(new Consumer<Long>() {
-                            @Override
-                            public void accept(Long aLong) throws Exception {
-                                tcpMessageReader.sendRingMessage();
-                            }
-                        });
-                break;
         }
         return START_STICKY;
     }
@@ -128,9 +112,6 @@ public class TcpService extends Service {
         if (tcpClient != null) {
             tcpClient.stop();
             tcpClient = null;
-        }
-        if (ddd != null && !ddd.isDisposed()) {
-            ddd.dispose();
         }
     }
 

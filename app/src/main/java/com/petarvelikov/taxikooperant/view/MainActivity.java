@@ -107,15 +107,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void bindUi() {
-        Button startButton = (Button) findViewById(R.id.btnStart);
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TcpService.class);
-                intent.setAction(Constants.ACTION.START_RINGING);
-                startService(intent);
-            }
-        });
         setupExitButton();
         setupSettingsButton();
         setupStopButton();

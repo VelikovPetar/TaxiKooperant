@@ -13,10 +13,8 @@ public class Constants {
     public interface ACTION {
         String START_FOREGROUND = "com.petarvelikov.taxikooperant.action.startforeground";
         String STOP_FOREGROUND = "com.petarvelikov.taxikooperant.action.stopforeground";
-        String START_SERVICE = "com.petarvelikov.taxikooperant.action.start";
         String STOP_SERVICE = "com.petarvelikov.taxikooperant.action.stop";
         String STOP_RINGING = "com.petarvelikov.taxikooperant.action.stopringing";
-        String START_RINGING = "com.petarvelikov.taxikooperant.action.startringing";
     }
 }
 

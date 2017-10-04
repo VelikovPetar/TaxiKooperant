@@ -3,6 +3,8 @@ package com.petarvelikov.taxikooperant.model.writer;
 import android.content.SharedPreferences;
 import android.location.Location;
 
+import com.petarvelikov.taxikooperant.constants.Constants;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -12,7 +14,6 @@ import javax.inject.Singleton;
 @Singleton
 public class MessagesGenerator {
 
-    private static final String USER_ID = "user_id";
     private SharedPreferences sharedPreferences;
 
     @Inject
@@ -26,7 +27,7 @@ public class MessagesGenerator {
         // Najava na paket
         message[0] = message[1] = (byte) 'A';
         // Broj na vozach
-        String userId = sharedPreferences.getString(USER_ID, null);
+        String userId = sharedPreferences.getString(Constants.USER_ID, null);
         userId = padLeft(userId, 5, '0');
         byte[] bytes = userId.getBytes();
         message[2] = bytes[0];
