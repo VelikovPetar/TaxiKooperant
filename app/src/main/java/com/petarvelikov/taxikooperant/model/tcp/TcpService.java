@@ -50,6 +50,7 @@ public class TcpService extends Service {
 
     private Disposable disposable;
     private Disposable ddd;
+    private boolean canPlay = true;
 
     @Nullable
     @Override
@@ -96,7 +97,7 @@ public class TcpService extends Service {
             // TODO Remove this
             case Constants.ACTION.START_RINGING:
 //                soundManager.playSound(7);
-                ddd = Observable.timer(7, TimeUnit.SECONDS)
+                ddd = Observable.timer(12, TimeUnit.SECONDS)
                         .subscribe(new Consumer<Long>() {
                             @Override
                             public void accept(Long aLong) throws Exception {
@@ -164,7 +165,9 @@ public class TcpService extends Service {
                     public void onNext(@NonNull AbstractMessage abstractMessage) {
                         if (abstractMessage instanceof RingBellMessage) {
                             RingBellMessage message = (RingBellMessage) abstractMessage;
-                            soundManager.playSound(message.getSeconds());
+                            if (canPlay) {
+                                soundManager.playSound(message.getSeconds());
+                            }
                         }
                     }
 
@@ -192,7 +195,10 @@ public class TcpService extends Service {
             public void onCallStateChanged(int state, String incomingNumber) {
                 if (state == TelephonyManager.CALL_STATE_RINGING ||
                         state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                    canPlay = false;
                     soundManager.stopSound();
+                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+                    canPlay = true;
                 }
                 super.onCallStateChanged(state, incomingNumber);
             }
